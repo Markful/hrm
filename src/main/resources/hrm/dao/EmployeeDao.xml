@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="hrm.dao.EmployeeDao">
+
+
+    <select id="count" resultType="int" parameterType="map">
+        SELECT count(*) from employee;
+    </select>
+
+    <select id="selectAllEmployee" parameterType="employee">
+            SELECT * FROM employee;
+    </select>
+
+
+    <!-- 多对一级联  -->
+    <select id="selectByPage" parameterType="map" resultMap="EmployeeMap">
+        select * from employee
+        <where>
+            <!-- 模糊查询 -->
+            <if test="name != null">
+                AND `name` like #{name}
+            </if>
+            <if test="carID != null">
+                AND carID like #{carID}
+            </if>
+            <if test="phone != null">
+                AND phone like #{phone}
+            </if>
+            <if test="sex != null">
+                AND sex=#{sex}
+            </if>
+            <if test="dept_id != null">
+                AND dept_id=#{dept_id}
+            </if>
+            <if test="job_id != null">
+                 AND job_id=#{job_id}
+            </if>
+        </where>
+    </select>
+
+    <!--和job级联 和 Dept 级联-->
+    <resultMap id="EmployeeMap" type="employee">
+        <id column="id" property="id" />
+            <association property="job" column="job_id" javaType="job" select="findJobLike"/>
+            <association property="dept" column="dept_id" javaType="dept" select="findDeptLike" />
+    </resultMap>
+
+    <select id="findJobLike" resultType="Job" parameterType="int">
+            SELECT * FROM job WHERE id=#{job_id}
+    </select>
+
+    <select id="findDeptLike" resultType="Dept" parameterType="int">
+            SELECT * FROM Dept WHERE id=#{dept_id}
+    </select>
+
+    <!--添加-->
+    <insert id="save" parameterType="employee">
+            insert into employee values(NULL ,#{dept.id},#{job.id},#{name},#{cardId},#{address},#{postCode},
+            #{tel},#{phone},#{qqNum},#{email},#{sex},#{party},#{birthday},#{race},#{education},#{speciality}
+            ,#{hobby},#{remark},now())
+    </insert>
+
+    <!--删除-->
+    <delete id="deleteById" parameterType="int">
+            delete from employee WHERE id=#{id}
+    </delete>
+
+
+    <!--多对一级联-->
+    <select id="selectById" parameterType="int" resultMap="EmployeeMapId">
+            SELECT * FROM Employee where id = #{id}
+    </select>
+
+    <resultMap id="EmployeeMapId" type="Employee">
+        <id column="id" property="id" />
+        <!--关联JOB表-->
+        <association property="Job" column="job_id" javaType="job" select="findJob" />
+        <!--关联Dept表-->
+        <association property="Dept" column="dept_id" javaType="dept" select="findDept" />
+    </resultMap>
+    <select id="findJob" resultType="job" parameterType="int">
+            SELECT * FROM job WHERE id=#{job_id}
+    </select>
+    <select id="findDept" resultType="dept" parameterType="int">
+        SELECT * FROM dept WHERE id=#{dept_id}
+    </select>
+
+
+
+    <update id="update" parameterType="employee">
+            UPDATE employee SET dept_id=#{dept.id},job_id=#{job.id},`name`=#{name},cardId=#{cardId},address=#{address},
+            postCode=#{postCode},tel=#{tel},phone=#{phone},qqNum=#{qqNum},email=#{email},sex=#{sex},
+            party=#{party},birthday=#{birthday},race=#{race},education=#{education},speciality=#{speciality}
+            ,hobby=#{hobby},remark=#{remark} WHERE id=#{id}
+    </update>
+
+</mapper>

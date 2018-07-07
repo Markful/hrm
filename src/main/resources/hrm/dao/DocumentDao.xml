@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="hrm.dao.DocumentDao">
+
+
+    <select id="selectByPage" parameterType="map" resultMap="findUserMap">
+            SELECT * FROM document
+            <where>
+                <if test="title != null">
+                 AND title like #{title}
+                </if>
+                <if test="uid != null">
+                   AND uid=#{uid}
+                </if>
+            </where>
+    </select>
+    <!--传进来-->
+    <resultMap id="findUserMap" type="document" >
+        <id column="id" property="id"/>
+        <association property="user" column="uid" javaType="user" select="findUserId"/>
+    </resultMap>
+    <select id="findUserId" resultType="user">
+        SELECT * FROM  `user` WHERE id=#{uid}
+    </select>
+
+
+    <select id="count" resultType="int" parameterType="map">
+            SELECT COUNT(*) FROM document ;
+    </select>
+
+    <insert id="save" parameterType="document">
+            INSERT INTO document values(NULL ,#{title},#{fileName},#{remark},now(),#{user.id});
+    </insert>
+
+    <select id="selectById" parameterType="int" resultType="document">
+            SELECT * FROM document WHERE id=#{id}
+    </select>
+
+    <delete id="deleteById" parameterType="int">
+            DELETE FROM document WHERE id=#{id}
+    </delete>
+
+    <update id="update" parameterType="document">
+            UPDATE document SET title=#{title},fileName=#{fileName},remark=#{remark} WHERE id=#{id}
+    </update>
+
+
+
+
+</mapper>
